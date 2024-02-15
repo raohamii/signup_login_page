@@ -176,6 +176,7 @@ class _Signup_pageState extends State<Signup_page> {
                         content: Text('User signed up successfully'),
                       ));
                     }
+
                   },
                   style: ElevatedButton.styleFrom(
                     primary: Colors.indigo.withOpacity(0.3),
