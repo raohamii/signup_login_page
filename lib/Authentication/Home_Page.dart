@@ -13,8 +13,10 @@ class _Home_PageState extends State<Home_Page> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Home Page"),
+
+        title: const Text("Home Page "),
         backgroundColor: Colors.indigo.withOpacity(0.3),
         centerTitle: true,
       ),
@@ -31,8 +33,10 @@ class _Home_PageState extends State<Home_Page> {
               controller: search,
               decoration: const InputDecoration(
                 hintText: 'search',
+
                 icon: Icon(Icons.search),
               ),
+
             ),
           )
         ],
