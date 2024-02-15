@@ -21,6 +21,14 @@ class _Home_PageState extends State<Home_Page> {
         title: const Text("Home Page"),
         backgroundColor: Colors.indigo.withOpacity(0.3),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Handle search action
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
