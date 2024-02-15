@@ -9,6 +9,7 @@ class Home_Page extends StatefulWidget {
 }
 
 class _Home_PageState extends State<Home_Page> {
+  final search = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,10 +18,26 @@ class _Home_PageState extends State<Home_Page> {
         backgroundColor: Colors.indigo.withOpacity(0.3),
         centerTitle: true,
       ),
-      body: Center(
-        child: Text("Home Screen",style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),),
+      body:
+      Column(
+        children: [
+          Center(
+            child: Text("Home Screen",style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),),
 
+          ),
+          Center(
+            // add TextFormField
+            child: TextFormField(
+              controller: search,
+              decoration: const InputDecoration(
+                hintText: 'search',
+                icon: Icon(Icons.search),
+              ),
+            ),
+          )
+        ],
       ),
+
     );
   }
 }
