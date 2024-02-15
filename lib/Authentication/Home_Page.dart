@@ -76,6 +76,7 @@ class _Home_PageState extends State<Home_Page> {
                       height: 60,
                       decoration: BoxDecoration(
                         shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(15),
                         image: DecorationImage(
                           fit: BoxFit.cover,
                           image: NetworkImage(data[index]["url"]),
