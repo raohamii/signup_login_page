@@ -12,7 +12,13 @@ class Home_Page extends StatefulWidget {
 }
 
 class _Home_PageState extends State<Home_Page> {
-  final search = TextEditingController();
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,16 +71,6 @@ class _Home_PageState extends State<Home_Page> {
               style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
             ),
           ),
-          Center(
-            // add TextFormField
-            child: TextFormField(
-              controller: search,
-              decoration: const InputDecoration(
-                hintText: 'search',
-                icon: Icon(Icons.search),
-              ),
-            ),
-          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -83,6 +79,25 @@ class _Home_PageState extends State<Home_Page> {
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.indigo.withOpacity(0.3),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Setting',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.indigo,
+        onTap: _onItemTapped,
       ),
     );
   }
