@@ -1,6 +1,7 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:signup_login_page/Authentication/Login_page.dart';
-import 'package:signup_login_page/Authentication/DatabaseHandler/DbHelper.dart';
+import 'package:http/http.dart' as http;
 
 class Home_Page extends StatefulWidget {
   const Home_Page({Key? key, required this.username}) : super(key: key);
@@ -12,6 +13,31 @@ class Home_Page extends StatefulWidget {
 }
 
 class _Home_PageState extends State<Home_Page> {
+  late List<dynamic> data = [];
+
+  Future<void> getData() async {
+    try {
+      http.Response response =
+      await http.get(Uri.parse("https://jsonplaceholder.typicode.com/photos"));
+      if (response.statusCode == 200) {
+        setState(() {
+          data = json.decode(response.body);
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      // Handle the error, e.g., show an error message
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -29,12 +55,63 @@ class _Home_PageState extends State<Home_Page> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: () {
               // Handle search action
             },
           ),
         ],
+      ),
+      body: Expanded(
+        child: ListView.builder(
+          itemCount: data == null ? 0 : data.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(data[index]["url"]),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10), // Add spacing between image and text
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Username: ${data[index]["id"]}",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 5), // Add vertical spacing
+                          Text(
+                           "Description ${data[index]["title"]}",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                            ),
+                            maxLines: 1, // Limit title to 2 lines
+                            overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -62,23 +139,6 @@ class _Home_PageState extends State<Home_Page> {
             ),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          Center(
-            child: Text(
-              "Home Screen",
-              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add onPressed action for the floating action button
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.indigo.withOpacity(0.3),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
