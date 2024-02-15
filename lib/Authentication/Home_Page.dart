@@ -41,21 +41,14 @@ class _Home_PageState extends State<Home_Page> {
               child: Text('Drawer Header'),
             ),
             ListTile(
-              title: const Text('Home'),
+              title: const Text('Item 1'),
               onTap: () {
                 // Update the UI based on the item selected
                 // Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Setting'),
-              onTap: () {
-                // Update the UI based on the item selected
-                // Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Logout'),
+              title: const Text('Item 2'),
               onTap: () {
                 // Update the UI based on the item selected
                 // Navigator.pop(context);
@@ -83,6 +76,13 @@ class _Home_PageState extends State<Home_Page> {
             ),
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add onPressed action for the floating action button
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.indigo.withOpacity(0.3),
       ),
     );
   }
