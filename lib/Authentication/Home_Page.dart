@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+void main() {
+  runApp(const MaterialApp(
+    home: Home_Page(username: 'Hamayoun'),
+  ));
+}
+
 class Home_Page extends StatefulWidget {
   const Home_Page({Key? key, required this.username}) : super(key: key);
 
@@ -85,66 +91,71 @@ class _Home_PageState extends State<Home_Page> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredData.length,
-              itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Detail_Page(item: filteredData[index]),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(15),
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: NetworkImage(filteredData[index]["url"]),
-                              ),
+              child: Scrollbar(
+                thumbVisibility: true,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: filteredData.length,
+                    itemBuilder: (BuildContext context, int index) {
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Detail_Page(item: filteredData[index]),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          );
+                        },
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
                               children: <Widget>[
-                                Text(
-                                  "Username: ${filteredData[index]["id"]}",
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    borderRadius: BorderRadius.circular(15),
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(filteredData[index]["url"]),
+                                    ),
                                   ),
                                 ),
-                                SizedBox(height: 5),
-                                Text(
-                                  "Description: ${filteredData[index]["title"]}",
-                                  style: TextStyle(
-                                    fontSize: 16.0,
+                                SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        "Username: ${filteredData[index]["id"]}",
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 5),
+                                      Text(
+                                        "Description: ${filteredData[index]["title"]}",
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+          ),
           ),
         ],
       ),
@@ -215,4 +226,3 @@ class Detail_Page extends StatelessWidget {
     );
   }
 }
-
