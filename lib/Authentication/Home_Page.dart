@@ -14,35 +14,46 @@ class Home_Page extends StatefulWidget {
 
 class _Home_PageState extends State<Home_Page> {
   late List<dynamic> data = [];
+  late List<dynamic> filteredData = [];
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    getData();
+  }
 
   Future<void> getData() async {
     try {
-      http.Response response =
-      await http.get(Uri.parse("https://jsonplaceholder.typicode.com/photos"));
+      http.Response response = await http.get(
+          Uri.parse("https://jsonplaceholder.typicode.com/photos"));
       if (response.statusCode == 200) {
         setState(() {
           data = json.decode(response.body);
+          filteredData = List.from(data);
         });
       } else {
         throw Exception('Failed to load data');
       }
     } catch (e) {
       print('Error: $e');
-      // Handle the error, e.g., show an error message
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getData();
-  }
+  void _search(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        filteredData = List.from(data);
+      });
+      return;
+    }
 
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      filteredData = data.where((item) =>
+      item["id"].toString().toLowerCase().contains(query.toLowerCase()) ||
+          item["title"].toString().toLowerCase().contains(query.toLowerCase())
+      ).toList();
     });
   }
 
@@ -51,114 +62,82 @@ class _Home_PageState extends State<Home_Page> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home Page"),
-        backgroundColor: Colors.indigo.withOpacity(0.3),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Handle search action
-            },
-          ),
-        ],
+        backgroundColor: Colors.indigo.withOpacity(0.5),
       ),
-      body: Expanded(
-        child: ListView.builder(
-          itemCount: data == null ? 0 : data.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(15),
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage(data[index]["url"]),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10), // Add spacing between image and text
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            "Username: ${data[index]["id"]}",
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 5), // Add vertical spacing
-                          Text(
-                           "Description ${data[index]["title"]}",
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                            maxLines: 1, // Limit title to 2 lines
-                            overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: "Search...",
+                border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    _search('');
+                  },
                 ),
               ),
-            );
-          },
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.indigo,
-              ),
-              child: Text('Drawer Header'),
+              onChanged: (query) => _search(query),
             ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {
-                // Update the UI based on the item selected
-                // Navigator.pop(context);
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredData.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(15),
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(filteredData[index]["url"]),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                "Username: ${filteredData[index]["id"]}",
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                "Description: ${filteredData[index]["title"]}",
+                                style: TextStyle(
+                                  fontSize: 16.0,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               },
             ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {
-                // Update the UI based on the item selected
-                // Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Setting',
           ),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.indigo,
-        onTap: _onItemTapped,
       ),
     );
   }

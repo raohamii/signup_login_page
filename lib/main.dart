@@ -3,7 +3,7 @@ import 'package:signup_login_page/Authentication/Home_Page.dart';
 import 'package:signup_login_page/Authentication/Login_page.dart';
 import 'Authentication/Signup_page.dart';
 import 'Authentication/Login_page.dart';
-
+import 'dart:async';
 
 
 void main() {
