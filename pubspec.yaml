@@ -39,6 +39,7 @@ dependencies:
   path_provider:
   sqflite:
   http:
+  carousel_slider:
 dev_dependencies:
   flutter_test:
     sdk: flutter

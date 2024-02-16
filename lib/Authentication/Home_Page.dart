@@ -93,6 +93,9 @@ class _Home_PageState extends State<Home_Page> {
           Expanded(
               child: Scrollbar(
                 thumbVisibility: true,
+                  thickness: 10,
+                radius: Radius.circular(20), //corner radius of scrollbar
+                scrollbarOrientation: ScrollbarOrientation.right,
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: filteredData.length,
