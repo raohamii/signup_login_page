@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:signup_login_page/Authentication/Home_Page.dart';
 import 'package:signup_login_page/Authentication/Login_page.dart';
-import 'package:signup_login_page/Authentication/DatabaseHandler/DbHelper.dart';
+
 
 class Signup_page extends StatefulWidget {
   const Signup_page({Key? key}) : super(key: key);
@@ -16,11 +19,18 @@ class _Signup_pageState extends State<Signup_page> {
   final Email = TextEditingController();
   final Password = TextEditingController();
   final ConfirmPassword = TextEditingController(); // Separate controller for confirm password
-  bool isVisible = false;
+  bool isVisiblePassword = false;
+  bool isVisibleConfirmPassword = false;
 
-  void toggleVisibility() {
+  void toggleVisibilityPassword() {
     setState(() {
-      isVisible = !isVisible;
+      isVisiblePassword = !isVisiblePassword;
+    });
+  }
+
+  void toggleVisibilityConfirmPassword() {
+    setState(() {
+      isVisibleConfirmPassword = !isVisibleConfirmPassword;
     });
   }
 
@@ -45,14 +55,58 @@ class _Signup_pageState extends State<Signup_page> {
   }
 
   Future<void> signup() async {
-    final dbHelper = DbHelper.instance;
-    await dbHelper.initDatabase(); // Initialize the database
-    await dbHelper.insertData('your_table', {
-      'username': Username.text,
-      'email': Email.text,
-      'password': Password.text,
-    });
-    // Show a success message or navigate to another screen
+    try {
+      // Validate email format
+      if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(Email.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Invalid email format.'),
+        ));
+        return;
+      }
+
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: Email.text,
+        password: Password.text,
+      );
+
+      // Sign in the user after successful signup
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: Email.text,
+        password: Password.text,
+      );
+
+      // Add user data to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'username': Username.text,
+        'email': Email.text,
+      });
+
+      // Show a success message or navigate to another screen
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('User signed up successfully'),
+      ));
+
+      // Navigate to the home page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => Home_Page(username: "Hamayoun"),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('The password provided is too weak.'),
+        ));
+      } else if (e.code == 'email-already-in-use') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('The account already exists for that email.'),
+        ));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to sign up. Please try again later.'),
+      ));
+    }
   }
 
   @override
@@ -111,14 +165,14 @@ class _Signup_pageState extends State<Signup_page> {
                   ),
                   child: TextFormField(
                     controller: Password,
-                    obscureText: !isVisible,
+                    obscureText: !isVisiblePassword,
                     decoration: InputDecoration(
                       hintText: "Password",
                       border: InputBorder.none,
                       icon: Icon(Icons.lock),
                       suffixIcon: GestureDetector(
-                        onTap: toggleVisibility,
-                        child: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
+                        onTap: toggleVisibilityPassword,
+                        child: Icon(isVisiblePassword ? Icons.visibility : Icons.visibility_off),
                       ),
                     ),
                   ),
@@ -131,14 +185,14 @@ class _Signup_pageState extends State<Signup_page> {
                   ),
                   child: TextFormField(
                     controller: ConfirmPassword,
-                    obscureText: !isVisible,
+                    obscureText: !isVisibleConfirmPassword,
                     decoration: InputDecoration(
                       hintText: "Confirm Password",
                       border: InputBorder.none,
                       icon: Icon(Icons.lock),
                       suffixIcon: GestureDetector(
-                        onTap: toggleVisibility,
-                        child: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
+                        onTap: toggleVisibilityConfirmPassword,
+                        child: Icon(isVisibleConfirmPassword ? Icons.visibility : Icons.visibility_off),
                       ),
                     ),
                   ),
@@ -147,7 +201,7 @@ class _Signup_pageState extends State<Signup_page> {
                 ElevatedButton(
                   onPressed: scanQR,
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.indigo.withOpacity(0.3), // Background color
+                    backgroundColor: Colors.indigo.withOpacity(0.3), // Background color
                   ),
                   child: Text(
                     'Scan QR Code for Login',
@@ -160,30 +214,20 @@ class _Signup_pageState extends State<Signup_page> {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Please fill in all fields.'),
                       ));
-                    } else if (Password.text != ConfirmPassword.text) {
+                    } else if (Password.text.toLowerCase() != ConfirmPassword.text.toLowerCase()) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Passwords do not match.'),
                       ));
                     } else {
-                      final dbHelper = DbHelper.instance;
-                      await dbHelper.insertData('your_table', {
-                        'username': Username.text,
-                        'email': Email.text,
-                        'password': Password.text,
-                      });
-                      // Show a success message or navigate to another screen
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('User signed up successfully'),
-                      ));
+                      signup();
                     }
-
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.indigo.withOpacity(0.3),
+                    backgroundColor: Colors.indigo.withOpacity(0.3),
                   ),
                   child: Text(
                     'Signup',
-                    style: TextStyle(color: Colors.black), // Text color
+                    style: TextStyle(color: Colors.black),
                   ),
                 ),
 

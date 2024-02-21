@@ -4,11 +4,22 @@ import 'package:signup_login_page/Authentication/Login_page.dart';
 import 'Authentication/Signup_page.dart';
 import 'Authentication/Login_page.dart';
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+    apiKey: "AIzaSyBNDKD9ozL1RghTn2Wf9mJCmvrpOMOtkko",
+    appId: "1:1088597157281:android:9a4c664cbfb09c5fdc17e0",
+    messagingSenderId: "1088597157281",
+    projectId: "signup-page-145a9",
+    ),
+  );
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -37,7 +48,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const Login_page(),
+      home: const Signup_page()
     );
   }
 }

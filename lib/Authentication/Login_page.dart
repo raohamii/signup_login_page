@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:signup_login_page/Authentication/DatabaseHandler/DbHelper.dart';
-import 'package:signup_login_page/Authentication/Home_Page.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-
-import 'Home_Page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:signup_login_page/Authentication/Signup_page.dart';
+import 'home_page.dart';
 
 class Login_page extends StatefulWidget {
   const Login_page({Key? key}) : super(key: key);
@@ -14,36 +14,63 @@ class Login_page extends StatefulWidget {
 }
 
 class _Login_pageState extends State<Login_page> {
-  final Username = TextEditingController();
+  final Email = TextEditingController();
   final Password = TextEditingController();
-  bool isVisible = false;
+  bool isVisiblePassword = false;
 
-  void toggleVisibility() {
+  void toggleVisibilityPassword() {
     setState(() {
-      isVisible = !isVisible;
+      isVisiblePassword = !isVisiblePassword;
     });
   }
 
   Future<void> scanQR() async {
-    String barcodeScanRes;
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+      String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666',
         'Cancel',
         true,
         ScanMode.QR,
       );
-      debugPrint(barcodeScanRes);
+      if (barcodeScanRes != '-1') {
+        debugPrint(barcodeScanRes);
+        // Handle the scanned QR code result
+        setState(() {
+          // Do something with the scanned QR code result
+        });
+      }
     } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
+      debugPrint('Failed to get platform version.');
     }
+  }
 
-    if (!mounted) return;
+  Future<void> login() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: Email.text,
+        password: Password.text,
+      );
 
-    // Handle the scanned QR code result
-    setState(() {
-      // Do something with the scanned QR code result
-    });
+      // Navigate to the home page if login is successful
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => Home_Page(username: "Hamayoun",)),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Invalid email or password. Please try again.'),
+        ));
+      } else if (e.code == 'invalid-email') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please enter a valid email address.'),
+        ));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to login. Please try again later.'),
+      ));
+    }
   }
 
   @override
@@ -62,7 +89,7 @@ class _Login_pageState extends State<Login_page> {
             child: Column(
               children: [
                 ListTile(
-                  title: const Text("Login Your Account",style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)),
+                  title: const Text("Login to Your Account",style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)),
                 ),
                 Container(
                   margin: EdgeInsets.all(8),
@@ -71,11 +98,11 @@ class _Login_pageState extends State<Login_page> {
                     color: Colors.indigo.withOpacity(0.3),
                   ),
                   child: TextFormField(
-                    controller: Username,
+                    controller: Email,
                     decoration: const InputDecoration(
-                      hintText: "Username",
+                      hintText: "Email",
                       border: InputBorder.none,
-                      icon: Icon(Icons.person),
+                      icon: Icon(Icons.email),
                     ),
                   ),
                 ),
@@ -87,14 +114,14 @@ class _Login_pageState extends State<Login_page> {
                   ),
                   child: TextFormField(
                     controller: Password,
-                    obscureText: !isVisible,
+                    obscureText: !isVisiblePassword,
                     decoration: InputDecoration(
                       hintText: "Password",
                       border: InputBorder.none,
                       icon: Icon(Icons.lock),
                       suffixIcon: GestureDetector(
-                        onTap: toggleVisibility,
-                        child: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
+                        onTap: toggleVisibilityPassword,
+                        child: Icon(isVisiblePassword ? Icons.visibility : Icons.visibility_off),
                       ),
                     ),
                   ),
@@ -103,7 +130,7 @@ class _Login_pageState extends State<Login_page> {
                 ElevatedButton(
                   onPressed: scanQR,
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.indigo.withOpacity(0.3), // Background color
+                    backgroundColor: Colors.indigo.withOpacity(0.3), // Background color
                   ),
                   child: Text(
                     'Scan QR Code for Login',
@@ -111,38 +138,36 @@ class _Login_pageState extends State<Login_page> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    final dbHelper = DbHelper.instance;
-                    final user = await dbHelper.getUser(Username.text, Password.text);
-                    if (user != null) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => Home_Page(username: user['username'])),
-                      );
-                    } else {
+                  onPressed: () {
+                    if (Email.text.isEmpty || Password.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text('Invalid username or password.'),
+                        content: Text('Please fill in all fields.'),
                       ));
+                    } else {
+                      login();
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.indigo.withOpacity(0.3),
+                    backgroundColor: Colors.indigo.withOpacity(0.3),
                   ),
                   child: Text(
                     'Login',
-                    style: TextStyle(color: Colors.black), // Text color
+                    style: TextStyle(color: Colors.black),
                   ),
                 ),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Do not have an account?"),
+                    const Text("Don't have an account?"),
                     TextButton(
                       onPressed: () {
-                        // Navigate to the signup page
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => Signup_page()),
+                        );
                       },
-                      child: Text("Signup"),
+                      child: Text("Sign Up"),
                     ),
                   ],
                 ),

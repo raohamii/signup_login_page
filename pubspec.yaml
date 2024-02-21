@@ -39,7 +39,13 @@ dependencies:
   path_provider:
   sqflite:
   http:
+  cached_network_image:
   carousel_slider:
+  cloud_firestore:
+  firebase_auth: ^4.17.5
+  firebase_core: ^2.24.2
+  firebase_storage:
+  firebase_core_platform_interface:
 dev_dependencies:
   flutter_test:
     sdk: flutter
