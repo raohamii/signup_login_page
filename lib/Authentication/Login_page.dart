@@ -50,8 +50,7 @@ class _Login_pageState extends State<Login_page> {
         email: Email.text,
         password: Password.text,
       );
-
-      // Navigate to the home page if login is successful
+      
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => Home_Page(username: "Hamayoun",)),

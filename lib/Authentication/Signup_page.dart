@@ -56,7 +56,6 @@ class _Signup_pageState extends State<Signup_page> {
 
   Future<void> signup() async {
     try {
-      // Validate email format
       if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(Email.text)) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Invalid email format.'),
@@ -69,24 +68,21 @@ class _Signup_pageState extends State<Signup_page> {
         password: Password.text,
       );
 
-      // Sign in the user after successful signup
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: Email.text,
         password: Password.text,
       );
 
-      // Add user data to Firestore
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
         'username': Username.text,
         'email': Email.text,
       });
 
-      // Show a success message or navigate to another screen
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('User signed up successfully'),
       ));
 
-      // Navigate to the home page
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => Home_Page(username: "Hamayoun"),
