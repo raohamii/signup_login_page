@@ -1,9 +1,7 @@
-import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:cached_network_image/cached_network_image.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -103,7 +101,6 @@ class _Home_PageState extends State<Home_Page> {
                 shrinkWrap: true,
                 itemCount: filteredData.length,
                 itemBuilder: (BuildContext context, int index) {
-
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -168,6 +165,7 @@ class _Home_PageState extends State<Home_Page> {
     );
   }
 }
+
 class Detail_Page extends StatefulWidget {
   final Map<String, dynamic> item;
   final List<String> additionalImageUrls = [
@@ -256,26 +254,26 @@ class _Detail_PageState extends State<Detail_Page> {
                     top: 195,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      color: Colors.black.withOpacity(0.6),
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: widget.additionalImageUrls.asMap().entries.map((entry) {
-                          int index = entry.key;
-                          return Container(
-                            width: 8.0,
-                            height: 8.0,
-                            margin: EdgeInsets.symmetric(horizontal: 4.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: index == _currentIndex ? Colors.white : Colors.grey, // Change indicator color based on selection
-                            ),
-                          );
-                        }).toList(),
+                      child: Container(
+                        color: Colors.black.withOpacity(0.6),
+                        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: widget.additionalImageUrls.asMap().entries.map((entry) {
+                            int index = entry.key;
+                            return Container(
+                              width: 8.0,
+                              height: 8.0,
+                              margin: EdgeInsets.symmetric(horizontal: 4.0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: index == _currentIndex ? Colors.white : Colors.grey, // Change indicator color based on selection
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
-                  ),
                   ),
                 ],
               ),
@@ -305,5 +303,3 @@ class _Detail_PageState extends State<Detail_Page> {
     );
   }
 }
-
-
